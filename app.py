@@ -8,7 +8,7 @@ import os
 app = Flask(__name__)
 
 # Load the pre-trained model
-custom_model = load_model("/content/drive/MyDrive/Object_Detection/object_detection/cifar10_model.h5")
+custom_model = load_model("cifar10_model.h5")
 
 # CIFAR-10 class labels
 class_labels = ['airplane', 'automobile', 'bird', 'cat', 'deer',
