@@ -79,7 +79,8 @@ def upload_file():
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', port='5000')
 
-# Run the app
+import os
+
 if __name__ == '__main__':
-    # app.run(host='0.0.0.0', port=8501)
-    app.run(debug=True)
+    port = int(os.getenv('PORT', 80))  # Use PORT environment variable or default to 80
+    app.run(debug=False, port=port)
