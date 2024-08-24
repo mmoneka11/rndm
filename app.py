@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, url_for
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import numpy as np
@@ -6,6 +6,10 @@ import os
 
 # Initialize Flask app
 app = Flask(__name__)
+
+# Ensure upload folder exists
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Load the pre-trained model
 custom_model = load_model("cifar10_model.h5")
@@ -40,7 +44,7 @@ HTML_TEMPLATE = """
     <h2>Prediction Result</h2>
     <p>Predicted Class: {{ predicted_class }}</p>
     <p>Confidence: {{ predicted_confidence }}%</p>
-    <img src="{{ url_for('static', filename=image_path) }}" alt="Uploaded Image" />
+    <img src="{{ url_for('static', filename='uploads/' + image_filename) }}" alt="Uploaded Image" />
     {% endif %}
 </body>
 </html>
@@ -56,7 +60,7 @@ def upload_file():
         if file.filename == '':
             return 'No selected file'
         if file:
-            filepath = os.path.join('/content/', file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(filepath)
 
             # Preprocess the image
@@ -71,14 +75,12 @@ def upload_file():
             # Render the HTML template with prediction results
             return render_template_string(HTML_TEMPLATE,
                                            predicted_class=predicted_class,
-                                           predicted_confidence=f'{predicted_confidence:.2f}'
+                                           predicted_confidence=f'{predicted_confidence:.2f}',
+                                           image_filename=file.filename
                                            )
     return render_template_string(HTML_TEMPLATE)
 
 # Run the app
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port='5000')
-
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 80))  # Use PORT environment variable or default to 80
-    app.run(debug=False, port=port)
+    app.run(debug=True, port=port)
